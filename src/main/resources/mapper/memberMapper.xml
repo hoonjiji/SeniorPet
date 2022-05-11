@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.senior.pet.dao.MemberMapper">
+	<!-- 로그인 하기 -->
+	<select id="login" parameterType="member" resultType="member">
+		select * from member where id =#{id} and pw =#{pw}
+	</select>
+	<!-- 회원 관리 리스트 출력-->
+	<select id="memberlist" resultType="member">
+		select * from member where usertype= 'user'
+	</select>
+	<!-- 회원 삭제 -->
+	<delete id="deletemember" parameterType="string">
+		delete from member where id = #{id}
+	</delete>
+	<!-- 알림 확인 -->
+	<select id="selectalarm" parameterType="string" resultType="alarm">
+		select alarmnum,boardnum,content, to_char(inputdate,'YY-MM-DD HH24:MI')as inputdate,confirm
+		 from alarm where 10>= rownum and id = #{id} order by confirm, alarmnum desc
+	</select>
+	<!-- 알림 수 확인 -->
+	<select id="countalarm" parameterType="string" resultType="int">
+		select count(*) from alarm where confirm ='N' and id = #{id}
+	</select>
+	<!-- 알림 추가 -->
+	<insert id="insertalarm" parameterType="alarm">
+		insert into alarm(alarmnum, id,boardnum,content)
+		values (alarm_seq.nextval, #{id},#{boardnum},#{content})
+	</insert>
+	<!-- 알림 확인 시 -->
+	<update id="updatealarm" parameterType="alarm">
+		update alarm 
+		<set>
+			confirm ='Y'
+		</set>
+		where boardnum = #{boardnum} and id=#{id}
+	</update>
+</mapper>

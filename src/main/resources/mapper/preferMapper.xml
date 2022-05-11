@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.senior.pet.dao.PreferMapper">
+<!-- 추천 확인(board) -->
+<select id="checkbp" parameterType="bp" resultType="bp">
+	select * from board_prefer where id = #{id} and boardnum = #{boardnum}
+</select>
+<!-- 추천 하기(board) -->
+<insert id="insertbp" parameterType="bp">
+	insert into board_prefer values (#{id},#{boardnum})
+</insert>
+<!-- 추천 확인(reply) -->
+<select id="checkrp" parameterType="rp" resultType="rp">
+	select * from reply_prefer where id = #{id} and replynum = #{replynum}
+</select>
+<!-- 추천 하기(reply) -->
+<insert id="insertrp" parameterType="rp">
+	insert into reply_prefer values (#{id},#{replynum})
+</insert>
+<!-- 추천 확인(info) -->
+<select id="checkip" parameterType="ip" resultType="ip">
+	select * from info_prefer where id = #{id} and infonum = #{infonum}
+</select>
+<!-- 추천 하기(info) -->
+<insert id="insertip" parameterType="ip">
+	insert into info_prefer values (#{id},#{infonum})
+</insert>
+
+
+</mapper>

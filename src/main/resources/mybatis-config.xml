@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias type="com.senior.pet.vo.locations" alias="locations"/>
+		<typeAlias type="com.senior.pet.vo.Member" alias="member"/>
+		<typeAlias type="com.senior.pet.vo.Point" alias="point"/>
+		<typeAlias type="com.senior.pet.vo.Board" alias="board"/>
+		<typeAlias type="com.senior.pet.vo.Board_prefer" alias="bp"/>
+		<typeAlias type="com.senior.pet.vo.Reply" alias="reply"/>
+		<typeAlias type="com.senior.pet.vo.Reply_prefer" alias="rp"/>
+		<typeAlias type="com.senior.pet.vo.Info" alias="info"/>
+		<typeAlias type="com.senior.pet.vo.Info_prefer" alias="ip"/>
+		<typeAlias type="com.senior.pet.vo.Shopping" alias="shop"/>
+		<typeAlias type="com.senior.pet.vo.Shop_prefer" alias="sp"/>
+		<typeAlias type="com.senior.pet.vo.Basket" alias="basket"/>
+		<typeAlias type="com.senior.pet.vo.Orders" alias="order"/>
+		<typeAlias type="com.senior.pet.vo.Alarm" alias="alarm"/>
+	</typeAliases>
+  <mappers>
+ 	<mapper resource="/mapper/shopMapper.xml"/>
+ 	<mapper resource="mapper/locationsMapper.xml"/>
+	<mapper resource="mapper/boardMapper.xml"/>
+	<mapper resource="mapper/preferMapper.xml"/>
+	<mapper resource="mapper/infoMapper.xml"/>
+	<mapper resource="mapper/pointMapper.xml"/>
+	<mapper resource="mapper/memberMapper.xml"/>
+  </mappers>
+</configuration>

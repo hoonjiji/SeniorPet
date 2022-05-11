@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.senior.pet.dao.PointMapper">
+<!-- 포인트 변동사항 입력 -->
+	<insert id="insertpoint" parameterType="point">
+		insert into point(pointnum, id, getpoint, gettype, inputtype)
+		values (point_seq.nextval, #{id}, #{getpoint}, #{gettype}, #{inputtype})
+	</insert>
+	<!-- 포인트 이력 조회 -->
+	<select id="selectpointbyid" parameterType="string" resultType="point">
+		select to_char(inputdate,'YYYY-MM-DD HH24:MI') as inputdate
+		, getpoint, gettype, inputtype
+		 from point where id = #{id} and 10>=rownum order by pointnum desc
+	</select>
+	<!-- 총 포인트 조회 -->
+	<select id="sumpoint" resultType="int" parameterType="string">
+		select nvl(sum(getpoint),0) from point where id = #{id} and inputtype ='적립'
+	</select>
+	<!-- 사용 포인트 조회 -->
+	<select id="subpoint" resultType="int" parameterType="string">
+		select nvl(sum(getpoint),0) from point where id = #{id} and inputtype ='사용'
+	</select>
+<!-- 당일 포인트 적립여부 확인 -->
+	<select id="selectpoint" parameterType="point" resultType="int">
+		select count(*) from point 
+			where id=#{id}
+			and gettype=#{gettype}
+			and to_char(inputdate,'YY/MM/DD') =#{inputdate}
+	</select>
+	<!-- 유효기간 삭제 : 구현 했으나 총 포인트 확인 시 꼬여 사용 안함 -->
+	<delete id="deletepoint" parameterType="string">
+		delete from point where #{limitday} >= to_char(inputdate,'YY/MM/DD') 
+	</delete>
+</mapper>

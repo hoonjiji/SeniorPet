@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.senior.pet.dao.ShopMapper">
+	<!-- 전체글 갯수 조회 -->
+	<select id="getTotal" parameterType="string" resultType="int">
+		select count(*) from shopping
+		<if test="_parameter != null">
+			where pro_name like '%' || #{searchText} || '%'
+		</if>
+	</select>
+	<!-- 전체 상품 리스트 조회 -->
+	<select id="shopList" parameterType="String" resultType="shop">
+		select shopnum, pro_name, pro_info, pro_image, price, stock, to_char(inputdate, 'YYYY-MM-DD') as inputdate, good, pro_type from shopping
+		<if test="_parameter != null">
+		 where pro_name like '%' || #{searchText} || '%'
+		</if>
+		order by shopnum desc
+	</select>
+	
+	<!-- 상품 타입에 따른 전체글 갯수 조회 -->
+	<select id="getTotalByType" parameterType="hashmap" resultType="int">
+		select count(*) from shopping where pro_type = #{pro_type}
+		<if test="searchText != ''">
+			and pro_name like '%' || #{searchText} || '%'
+		</if>
+	</select>
+	<!-- 상품 타입에 따른 상품 리스트 조회 -->
+	<select id="shopListByType" parameterType="hashmap" resultType="shop">
+		select shopnum, pro_name, pro_info, pro_image, price, stock, to_char(inputdate, 'YYYY-MM-DD') as inputdate, good, pro_type from shopping
+		where pro_type = #{pro_type}
+		<if test="searchText != ''">
+		 and pro_name like '%' || #{searchText} || '%'
+		</if>
+		order by shopnum desc
+	</select>
+	
+	<!-- 상품 전체 단순 조회 -->
+	<select id="justShopList" resultType="shop">
+		select shopnum, pro_name, pro_info, pro_image, price, stock, to_char(inputdate, 'YYYY-MM-DD') as inputdate, good, pro_type from shopping order by shopnum desc
+	</select>
+	<!-- 상품 번호에 따른 상품 조회 -->
+	<select id="getItem" parameterType="int" resultType="shop">
+		select shopnum, pro_name, pro_info, pro_image, price, stock, to_char(inputdate, 'YYYY-MM-DD') as inputdate, good, pro_type
+		 from shopping where shopnum = #{shopnum}
+	</select>
+	<!-- 상품 입력 -->
+	<insert id="insertItem" parameterType="shop">
+		insert into shopping 
+		(shopnum, pro_name, pro_info
+		<if test="pro_image != null">
+		, pro_image
+		</if>
+		, price, stock, inputdate, pro_type)
+		values 
+		(shopping_seq.nextval, #{pro_name}, #{pro_info}
+		<if test="pro_image != null">
+		, #{pro_image}
+		</if>
+		, #{price}, #{stock}, #{inputdate}, #{pro_type})
+	</insert>
+	<!-- 상품 정보 수정 -->
+	<update id="updateItem" parameterType="shop">
+		update shopping set
+			pro_name = #{pro_name}
+			, pro_info = #{pro_info}
+			<if test="pro_image != null">
+			, pro_image = #{pro_image}
+			</if>
+			, price = #{price}
+			, stock = #{stock}
+			, pro_type = #{pro_type}
+		where shopnum = #{shopnum}
+	</update>
+	<!-- 상품 재고량 수정 -->
+	<update id="updateStock" parameterType="shop">
+		update shopping set stock = #{stock} where shopnum = #{shopnum}
+	</update>
+	<!-- 상품 삭제 -->
+	<delete id="deleteItem" parameterType="int">
+		delete from shopping where shopnum = #{shopnum}
+	</delete>
+	<!-- 장바구니 목록 등록 -->
+	<insert id="insertBasket" parameterType="basket">
+		insert into basket 
+		(basketnum, id, ordercount, orderprice, pro_id, pro_name)
+		values (basket_seq.nextval, #{id}, #{ordercount}, #{orderprice}, #{pro_id}, #{pro_name})
+	</insert>
+	<!-- 고객 한 명이 찜한 상품목록 리스트 조회 -->
+	<select id="selectMyBasket" parameterType="String" resultType="basket">
+		select basketnum, id, ordercount, orderprice, pro_id, pro_name, to_char(inputdate, 'YYYY-MM-DD') as inputdate
+		from basket where id = #{id}
+		order by basketnum desc
+	</select>
+	<!-- 고객이 찜한 상품 조회 -->
+	<select id="myBasketItem" parameterType="basket" resultType="basket">
+		select basketnum, id, ordercount, orderprice, pro_id, pro_name, to_char(inputdate, 'YYYY-MM-DD') as inputdate
+		from basket where basketnum = #{basketnum} and id = #{id}
+	</select>
+	<!-- 찜한 상품 장바구니에서 삭제 -->
+	<delete id="deleteBasekt" parameterType="basket">
+		delete from basket where basketnum = #{basketnum} and id = #{id}
+	</delete>
+	<!-- 관리자를 위한 전체 주문된 상품들 목록 -->
+	<select id="selectOrderList" resultType="order">
+		select ordernum, id, ordercount, orderprice, pro_id, pro_name, to_char(orderdate, 'YYYY-MM-DD') as orderdate, orderstatus
+		from orders
+	</select>
+	<!-- 사용자를 위한 개인이 주문한 상품들 목록 -->
+	<select id="selectMyOrders" parameterType="String" resultType="order">
+		select ordernum, id, ordercount, orderprice, pro_id, pro_name, to_char(orderdate, 'YYYY-MM-DD') as orderdate, orderstatus
+		from orders where id = #{id}
+	</select>
+	<!-- 주문번호로 주문 조회 -->
+	<select id="selectOrder" parameterType="int" resultType="order">
+		select ordernum, id, ordercount, orderprice, pro_id, pro_name, to_char(orderdate, 'YYYY-MM-DD') as orderdate, orderstatus
+		from orders where ordernum = #{ordernum}
+	</select>
+	<!-- 들어온 주문을 Orders 테이블에 저장 -->
+	<insert id="insertOrder" parameterType="order">
+		insert into orders (ordernum, id, ordercount, orderprice, pro_id, pro_name)
+		values (orders_seq.nextval, #{id}, #{ordercount}, #{orderprice}, #{pro_id}, #{pro_name})
+	</insert>
+	<!-- 주문 삭제 -->
+	<delete id="deleteOrder" parameterType="int">
+		delete from orders where ordernum = #{ordernum}
+	</delete>
+	<!-- 주문 상태 변경 -->
+	<update id="updateStatus" parameterType="order">
+		update orders set orderstatus = #{orderstatus} where ordernum = #{ordernum}
+	</update>
+</mapper>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.senior.pet.dao.InfoMapper">
+	<resultMap type="info" id="infoMap">
+		<result property="infonum" column="infonum" />
+		<result property="id" column="id" />
+		<result property="title" column="title" />
+		<result property="content" column="content" jdbcType="CLOB"
+			javaType="java.lang.String" />
+		<result property="inputdate" column="inputdate" />
+		<result property="good" column="good" />
+		<result property="type" column="type" />
+	</resultMap>
+	<!-- 게시글 목록 -->
+	<select id="getinfolist" parameterType="hashmap"
+		resultType="info">
+		select infonum,title, id, to_char(inputdate,'YY-MM-DD HH24:MI') as
+		inputdate, good, type from info
+		<where>
+			<if test="type != null">
+				and type like '%'||#{type}||'%'
+			</if>
+			<if test="searchText != null">
+				and title like '%'||#{searchText}||'%'
+			</if>
+			<if test="good!=null">
+				and good >0
+			</if>
+		</where>
+		order by infonum desc
+	</select>
+	<!-- 게시글 5개만 가져오기(infonum과 제목만) -->
+	<select id="getinfo" resultType="info">
+		select infonum, title from info where 5>= rownum order by infonum desc
+	</select>
+	<!-- 게시글 갯수 파악 -->
+	<select id="countinfo" parameterType="hashmap" resultType="int">
+		select count(*) from info
+		<where>
+			<if test="type!=null">
+				and type like '%'||#{type}||'%'
+			</if>
+			<if test="searchText!=null">
+				and title like '%'||#{searchText}||'%'
+			</if>
+		</where>
+	</select>
+	<select id="countinfo_prefer" parameterType="string"
+		resultType="int">
+		select count(*) from info
+		<where>
+			<if test="searchText!=null">
+				and title like '%'||#{searchText}||'%'
+			</if>
+			and good>0
+		</where>
+	</select>
+	<!-- 글쓰기 -->
+	<insert id="writeinfo" parameterType="info">
+		insert into
+		info(infonum,id,title,content,type) values
+		(info_seq.nextval,#{id},#{title},#{content},#{type})
+	</insert>
+	<!-- 게시글읽기 -->
+	<select id="readinfo" parameterType="hashmap"
+		resultMap="infoMap">
+		select infonum,id,title,content,to_char(inputdate,'YY-MM-DD
+		HH24:MI') as inputdate,good,type
+		from info
+		where infonum = #{infonum}
+	</select>
+	<!-- 글 수정 -->
+	<update id="updateinfo" parameterType="info">
+		update info
+		<set>
+			title =#{title}
+			, type=#{type}
+			, content = #{content}
+		</set>
+		where infonum=#{infonum}
+	</update>
+	<!-- 글 삭제 -->
+	<delete id="deleteinfo" parameterType="int">
+		delete from info where infonum=#{infonum}
+	</delete>
+
+	<!-- 추천수 증가(게시글) -->
+	<update id="updategood" parameterType="int">
+		update info
+		<set>
+			good = good+1
+		</set>
+		where infonum = #{infonum}
+	</update>
+</mapper>

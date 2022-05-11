@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.senior.pet.dao.LocationsMapper">
+	<select id="mapByAd" resultType="locations" parameterType="string">
+		select * from locations 
+		where ad_locate like '%'||#{address}||'%' or ad_street like '%'||#{address}||'%'
+		order by num
+	</select>
+	<select id="mapBySearch" resultType="locations" parameterType="string">
+		select * from locations 
+		where name like '%'||#{searchText}||'%' 
+		order by num
+	</select>
+	<!-- 주소에 따른 총 갯수 얻기 -->
+	<select id="getTotalByAd" parameterType="string" resultType="int">
+		select count(*) from locations 
+		where ad_locate like '%'||#{address}||'%' or ad_street like '%'||#{address}||'%'
+	</select>
+	<!-- 검색명에 따른 총 갯수 얻기 -->
+	<select id="getTotalBySearch" parameterType="string" resultType="int">
+		select count(*) from locations
+			where name like '%'||#{searchText}||'%'
+	</select>
+</mapper>

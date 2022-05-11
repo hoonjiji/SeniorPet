@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.senior.pet.dao.BoardMapper">
+	<resultMap type="board" id="boardMap">
+		<result property="boardnum" column="boardnum"/>
+		<result property="id" column="id"/>
+		<result property="title" column="title"/>
+		<result property="content" column="content" jdbcType="CLOB" javaType="java.lang.String"/>
+		<result property="filepath" column="filepath"/>
+		<result property="inputdate" column="inputdate"/>
+		<result property="good" column="good"/>
+		<result property="read" column="read"/>
+		<result property="type" column="type"/>
+	</resultMap>
+	<!-- 게시글 목록 -->
+	<select id="getlist" parameterType="hashmap" resultType="board">
+		select boardnum,title, id, to_char(inputdate,'YY-MM-DD HH24:MI') as inputdate, good, read, type from board 
+		<where>
+		<if test="id != ''">
+			and id = #{id}
+		</if>
+		<if test="type != ''">
+			and type like '%'||#{type}||'%'
+		</if>
+		<if test="searchText != null">
+			and title like '%'||#{searchText}||'%'
+		</if>
+		<if test="good!=null">
+			and good >0
+		</if>
+		</where>
+		order by boardnum desc
+	</select>
+	<!-- 게시글 목록 (제목과 boardnum만 5개) -->
+	<select id="getboard" resultType="board">
+		select boardnum, title from board where 5>= rownum order by boardnum desc
+	</select>
+	<!-- 게시글 갯수 파악 -->
+	<select id = "countboard" parameterType="hashmap" resultType="int">
+		select count(*) from board 
+		<where>
+		<if test="id!= ''">
+			and id = #{id}
+		</if>
+		<if test="type!= null">
+			and type like '%'||#{type}||'%'
+		</if>
+		<if test="searchText!=null">
+			and title like '%'||#{searchText}||'%'
+		</if>
+		</where>
+	</select>
+	<select id="countboard_prefer" parameterType="string" resultType="int">
+		select count(*) from board 
+		<where>
+		<if test="searchText!=null">
+			and title like '%'||#{searchText}||'%'
+		</if>
+			and good>0
+		</where>
+	</select>
+	<!-- 글쓰기 -->
+	<insert id="writeboard" parameterType="board">
+		insert into board(boardnum,id,title,content,type) values (board_seq.nextval,#{id},#{title},#{content},#{type})
+	</insert>
+	<!-- 게시글읽기 -->
+	<select id="readboard" parameterType="hashmap" resultMap="boardMap">
+		select boardnum,id,title,content,to_char(inputdate,'YY-MM-DD HH24:MI') as inputdate,good,read,type
+		from board
+		where boardnum = #{boardnum}
+	</select>
+	<!-- 글 수정 -->
+	<update id="updateboard" parameterType="board">
+		update board 
+		<set>
+			title =#{title}
+			, type=#{type}
+			, content = #{content}
+		</set> 
+		where boardnum=#{boardnum}
+	</update>
+	<!-- 글 삭제 -->
+	<delete id="deleteboard" parameterType="int">
+		delete from board where boardnum=#{boardnum}
+	</delete>
+	<!-- 조회수 증가 -->
+	<update id="updateread" parameterType="int">
+		update board 
+		<set>
+			read = read +1
+		</set>
+		where boardnum = #{boardnum}
+	</update>
+	<!-- 추천수 증가(게시글) -->
+	<update id="updategood" parameterType="int">
+		update board
+			<set>
+				good = good+1
+			</set>
+			where boardnum = #{boardnum}
+	</update>
+	<!-- 추천수 증가(댓글) -->
+	<update id="updatereplygood" parameterType="int">
+		update reply 
+		<set>
+			good = good+1
+		</set>
+		where replynum = #{replynum}
+	</update>
+	<!-- 댓글 보기(boardnum) -->
+	<select id="replylist" parameterType="int" resultType="reply">
+		select replynum, id, boardnum, content, to_char(inputdate,'YY-MM-DD HH24:MI') as inputdate, good
+		from reply where boardnum = #{boardnum} order by replynum desc
+	</select>
+	<!-- 댓글 개수 확인(boardnum) -->
+	<select id="countreply" parameterType="int" resultType="int">
+		select count(*) from reply where boardnum = #{boardnum}
+	</select>
+	<!-- 댓글 입력 -->
+	<insert id="writereply" parameterType="reply">
+		insert into reply(replynum,id, boardnum, content) 
+		values (reply_seq.nextval,#{id},#{boardnum},#{content})
+	</insert>
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deletereply" parameterType="int">
+		delete from reply where replynum = #{replynum}
+	</delete>
+	
+	<!-- 댓글 수정 -->
+	<update id="updatereply" parameterType="reply">
+		update reply 
+		<set>
+			content= #{content}
+		</set>
+		where replynum = #{replynum}
+	</update>
+</mapper>
